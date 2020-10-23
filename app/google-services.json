@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "798596311440",
+    "firebase_url": "https://crypto-trader-ba954.firebaseio.com",
+    "project_id": "crypto-trader-ba954",
+    "storage_bucket": "crypto-trader-ba954.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798596311440:android:25b24141424efe0f562b15",
+        "android_client_info": {
+          "package_name": "com.platzi.android.firestore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798596311440-71mjnrslufkdpsp21i94ho6n09elnrut.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.platzi.android.firestore",
+            "certificate_hash": "3cb86dcd1533548e1c0075eacd747c1d932ad591"
+          }
+        },
+        {
+          "client_id": "798596311440-oie70mhvie3j8qupteot8qhkmnhvvdid.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVB9phhjSFuZlilpuorKjuCQV4utMogt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798596311440-oie70mhvie3j8qupteot8qhkmnhvvdid.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
