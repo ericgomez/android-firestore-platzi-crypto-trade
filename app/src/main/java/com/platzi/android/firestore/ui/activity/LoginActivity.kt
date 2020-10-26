@@ -54,11 +54,25 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                    val username = username.text.toString()//obtenemos el valor del username
 
-                   val user = User()
-                    user.username = username
+                    //Verificamos si el usuario existe
+                    firestoreService.findUserById(username, object : Callback<User> {
+                        override fun onSuccess(result: User?) {
+                            if (result == null) {//Si el usuario no a sido Creado
+                                //Procedemos a crear el usuario
+                                val user = User()
+                                user.username = username
+                                //Lo enviamos al mainActivity el username
+                                saveUserAndStartMainActivity(user, view)//La vista es para utilizarla en el showErrorMessage que es lo que recibe
+                            } else //En caso que el suario ya exista
+                                startMainActivity(username)
+                        }
 
-                    //Lo enviamos al mainActivity el username
-                    saveUserAndStartMainActivity(user, view)//La vista es para utilizarla en el showErrorMessage que es lo que recibe
+                        override fun onFailed(exception: Exception) {//En caso de que No sea exitoso
+                            showErrorMessage(view)//Mandamos llamar al metodo que nos arroja un mensaje de error
+                        }
+
+                    })
+
                 } else {//En caso de que no sea exitosa la conexion
                     showErrorMessage(view)//Mostramos un mensaje de error en caso de que caiga en este supuesto
                     //En caso de que ocurra un error habilitamos el boton

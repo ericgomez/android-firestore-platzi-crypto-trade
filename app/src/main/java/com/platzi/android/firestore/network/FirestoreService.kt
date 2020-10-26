@@ -33,4 +33,35 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
             .update("available", crypto.available)//modificamos la cantidad de monedas disponibles
     }
 
+    //Funcion que consulte todas las listas de Crypto Monedas
+    fun getCryptos(callback: Callback<List<Crypto>>?) {
+        firebaseFirestore.collection(CRYPTO_COLLECTION_NAME)
+                .get()
+                .addOnSuccessListener { result -> //En caso de completar exitosamente
+                    for (document in result) {//Iteramos en toda la lista
+                        //Convertomos a un objeto de tipo Crypto
+                        val cryptoList = result.toObjects(Crypto::class.java)
+                        callback!!.onSuccess(cryptoList)//Al terminar el proceso y validamos con !! que el callback no este nulo
+                        break//Nos salimos del for
+                    }
+                }
+                .addOnFailureListener { exception -> callback!!.onFailed(exception)
+
+                }
+    }
+
+    //Funcion que nos permite encontrar usuarios decuerdo al ID
+    fun findUserById(id: String, callback: Callback<User>) {
+        firebaseFirestore.collection(USERS_COLLECTION_NAME).document(id)
+                .get()
+                .addOnSuccessListener { result ->
+                    if (result.data != null) {//Validamos que resultado sea diferente de nulo
+                        callback.onSuccess(result.toObject(User::class.java))//En caso de ser exitoso Convertimos el resultado a un usuario
+                    } else {//en caso de que el resultado sea null
+                        callback.onSuccess(null)//Le indicamos que la operacion fue exitosa pero el resultado fue nulo
+                    }
+                }
+                .addOnFailureListener { exception -> callback.onFailed(exception) }
+    }
+
 }
