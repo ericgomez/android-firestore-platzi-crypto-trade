@@ -17,14 +17,14 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
     }
 
     //Actualizar el usuario
-    fun updateUser(user:User, callback: Callback<User>) {// el callback es para notificarnos cuando fue exitosa ono la operacion
+    fun updateUser(user:User, callback: Callback<User>?) {// el callback es para notificarnos cuando fue exitosa ono la operacion
         firebaseFirestore.collection(USERS_COLLECTION_NAME).document(user.username)
             .update("cryptosList", user.cryptosList)//Actualizamos en Firestore
             .addOnSuccessListener { result ->
                 if (callback != null)//Si el callback es diferente de nulo
                     callback.onSuccess(user)
             }
-            .addOnFailureListener { exception -> callback.onFailed(exception) }//En caso de que exista un error
+            .addOnFailureListener { exception -> callback!!.onFailed(exception) }//En caso de que exista un error
     }
 
     //Actualizar Crypto
