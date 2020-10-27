@@ -52,11 +52,23 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
         //Realizamos la carga de las crypto monedas
         loadCryptos()
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener { view -> //Funcion el boton flotante
             Snackbar.make(view, getString(R.string.generating_new_cryptos), Snackbar.LENGTH_SHORT)
                 .setAction("Info", null).show()
+            //Funcion para generar crypto monedas aleatoreamente
+            generateCryptoCurrenciesRandom()
         }
 
+    }
+
+    //Funcion para generar crypto monedas aleatoreamente
+    private fun generateCryptoCurrenciesRandom() {
+        for (crypto in cryptosAdapter.cryptoList) {
+            val amount = (1..10).random()//Generamos un valor random propia de Kotlin
+            crypto.available += amount//Actualizamos la cantidad de monedas disponibles de esta crypto moneda
+            //Actualizamos en nuestro modelo de datos
+            firestoreService.updateCrypto(crypto)
+        }
     }
 
     private fun loadCryptos() {
