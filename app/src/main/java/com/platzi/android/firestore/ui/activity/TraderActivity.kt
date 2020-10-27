@@ -16,6 +16,7 @@ import com.platzi.android.firestore.model.Crypto
 import com.platzi.android.firestore.model.User
 import com.platzi.android.firestore.network.Callback
 import com.platzi.android.firestore.network.FirestoreService
+import com.platzi.android.firestore.network.RealtimeDataListener
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_trader.*
 import java.lang.Exception
@@ -85,6 +86,8 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
                         //Funcion que carga la lista de crypto monedas en el panel de informacion
                         loadUserCryptos()
 
+                        addRealtimeDatabaseListeners(user!!, cryptoList!!)
+
                     }
 
                     override fun onFailed(exception: Exception) {
@@ -105,6 +108,38 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
             override fun onFailed(exception: Exception) {
                 //En caso de existir un error mostramos un Log
                 Log.e("TraderActivity", "Error loading cryptos", exception)
+                showGeneralServerErrorMessage()
+            }
+
+        })
+    }
+
+    private fun addRealtimeDatabaseListeners(user: User, cryptosList: List<Crypto>) {
+        firestoreService.listenForUpdates(user, object : RealtimeDataListener<User>{
+            override fun onDataChange(updatedData: User) {
+                this@TraderActivity.user = updatedData
+                loadUserCryptos()
+            }
+
+            override fun onError(exception: Exception) {
+                showGeneralServerErrorMessage()
+            }
+        })
+
+        firestoreService.listenForUpdates(cryptosList, object : RealtimeDataListener<Crypto>{
+            override fun onDataChange(updateData: Crypto) {
+                var pos = 0 //Variable para ver la poscion que tiene la crypto moneda en el arreglo
+                for (crypto in cryptosAdapter.cryptoList) {//Realizamos el casteo de la lista
+                    if (crypto.name.equals(updateData.name)) {//Buscamos la moneda que estamos actualizando
+                        crypto.available = updateData.available
+                        //Le notificamos al adaptador que actualize el item para la posicion especifica
+                        cryptosAdapter.notifyItemChanged(pos)//Actualiza unicamente el item que cambia por medio del id
+                    }
+                    pos++
+                }
+            }
+
+            override fun onError(exception: Exception) {
                 showGeneralServerErrorMessage()
             }
 
@@ -149,6 +184,19 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     }
     //Esta funciona va a entrar una vez le demos click a la compra de Crypto monedas
     override fun onBuyCryptoClicked(crypto: Crypto) {
-        TODO("Not yet implemented")
+        //Verificamos que la crypto moneda de la cual vamos arealizar la compra tenga un saldo suficiente
+        if (crypto.available > 0) {
+            for (userCrypto in user!!.cryptosList!!) {
+                if (userCrypto.name == crypto.name) {//buscamos en la lista si la crypto moneda existe
+                    userCrypto.available += 1//si la encuentra incrementa 1
+                    break//nos salimos del ciclo
+                }
+            }
+            //Disminuimos la cantidad de Crypto monedas disponibles de esta Crypto moneda que estamo comprando
+            crypto.available--
+
+            firestoreService.updateUser(user!!, null)//Actauzlizamos el usuario directamente en Firestore
+            firestoreService.updateCrypto(crypto)//Actauzlizamos la crypto moneda directamente en Firestore
+        }
     }
 }

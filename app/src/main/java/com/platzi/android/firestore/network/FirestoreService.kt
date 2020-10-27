@@ -64,4 +64,38 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
                 .addOnFailureListener { exception -> callback.onFailed(exception) }
     }
 
+    //Creamos el primer listener para los crypto monedas
+    fun listenForUpdates(cryptos: List<Crypto>, listener: RealtimeDataListener<Crypto>) {
+        //Obtenemos una referencia a la colecion de crypto monedas
+        val cryptoReference = firebaseFirestore.collection(CRYPTO_COLLECTION_NAME)
+
+        for (crypto in cryptos) {
+            //Este metodo nos retornara una instancia de la data y un error
+            cryptoReference.document(crypto.getDocumentId()).addSnapshotListener { snapshot, e ->
+                if (e != null) {//Validamos si la exception es diferente de nulo
+                    listener.onError(e)
+                }
+                if (snapshot != null && snapshot.exists()) {//valodamos que el snapshot no sea nulo y que tenga datos
+                    listener.onDataChange(snapshot.toObject(Crypto::class.java)!!)//Propagamos los datos atravez de nuestro listener
+                }
+            }
+        }
+    }
+
+    //Creamos un segundo listener para los usuarios
+    fun listenForUpdates(user: User, listener: RealtimeDataListener<User>) {
+        //Este metodo nos retornara una instancia de la data y un error
+        val userReference = firebaseFirestore.collection(USERS_COLLECTION_NAME)
+        
+        userReference.document(user.username).addSnapshotListener { snapshot, e ->
+            if (e != null) {//Validamos si la exception es diferente de nulo
+                listener.onError(e)
+            }
+            if (snapshot != null && snapshot.exists()) {//valodamos que el snapshot no sea nulo y que tenga datos
+                listener.onDataChange(snapshot.toObject(User::class.java)!!)//Propagamos los datos atravez de nuestro listener
+            }
+        }
+    }
+
+
 }
